@@ -1,0 +1,247 @@
+
+# Smart Recycling Detection System
+# Git ignore configuration
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDEs and editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# PyCharm
+.idea/
+
+# Spyder
+.spyderproject
+.spyproject
+
+# Rope
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Model files (usually large)
+*.pt
+*.pth
+*.onnx
+*.engine
+*.trt
+models/
+weights/
+
+# Data and media files
+data/
+datasets/
+videos/
+images/
+*.mp4
+*.avi
+*.mkv
+*.mov
+*.wmv
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+*.tiff
+
+# Logs and output
+logs/
+*.log
+outputs/
+results/
+runs/
+wandb/
+
+# Configuration files with sensitive data
+.env.local
+.env.production
+.env.development
+config.ini
+secrets.json
+
+# Operating System
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Windows
+*.lnk
+
+# Linux
+*~
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Backup files
+*.bak
+*.backup
+*.orig
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# PyQt UI files (if auto-generated)
+*_ui.py
+ui_*.py
+
+# Documentation builds
+docs/_build/
+docs/build/
+
+# Profiling data
+*.prof
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Translations
+*.mo
+*.pot
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# Custom additions for this project
+src/resources/models/*.pt
+src/resources/sample_videos/*.mp4
+experiments/
+benchmarks/
+*.csv
+*.xlsx
+*.json
