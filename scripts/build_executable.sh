@@ -105,7 +105,7 @@ import sys
 from pathlib import Path
 
 # Add project root to path
-project_root = Path(__file__).parent
+project_root = Path(__name__).parent
 sys.path.insert(0, str(project_root))
 
 block_cipher = None
@@ -195,6 +195,8 @@ build_executable() {
 }
 
 # Test executable
+
+#windowns
 test_executable() {
     print_status "Testing executable..."
     
@@ -214,16 +216,54 @@ test_executable() {
         print_status "Testing executable startup..."
         
         # Run with version flag (if implemented)
-        if timeout 10s "$EXE_PATH" --version &> /dev/null; then
-            print_success "Executable test passed"
+        if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
+            start /wait "" "$EXE_PATH" --version &> /dev/null
+            if [[ $? -eq 0 ]]; then
+                print_success "Executable test passed"
+            else
+                print_warning "Executable test failed or timed out"
+            fi
         else
-            print_warning "Executable test failed or timed out"
+            if (Start-Process "$EXE_PATH" -ArgumentList '--version' -Wait -PassThru | Out-Null); then
+                print_success "Executable test passed"
+            else
+                print_warning "Executable test failed or timed out"
+            fi
         fi
     else
         print_error "Executable not found: $EXE_PATH"
         exit 1
     fi
 }
+# test_executable() {
+#     print_status "Testing executable..."
+    
+#     # Determine executable name based on platform
+#     if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
+#         EXE_NAME="$APP_NAME.exe"
+#     else
+#         EXE_NAME="$APP_NAME"
+#     fi
+    
+#     EXE_PATH="$DIST_DIR/$EXE_NAME"
+    
+#     if [[ -f "$EXE_PATH" ]]; then
+#         print_success "Executable found: $EXE_PATH"
+        
+#         # Test basic functionality
+#         print_status "Testing executable startup..."
+        
+#         # Run with version flag (if implemented)
+#         if timeout 10s "$EXE_PATH" --version &> /dev/null; then
+#             print_success "Executable test passed"
+#         else
+#             print_warning "Executable test failed or timed out"
+#         fi
+#     else
+#         print_error "Executable not found: $EXE_PATH"
+#         exit 1
+#     fi
+# }
 
 # Package executable
 package_executable() {
