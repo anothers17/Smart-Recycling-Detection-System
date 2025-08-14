@@ -32,11 +32,11 @@ class DetectionConfig:
 @dataclass
 class CountingConfig:
     """Configuration for object counting parameters."""
-    line_position_x: int = 300
+    line_position_x: int = 200
     line_position_y: Optional[int] = None
     tracking_enabled: bool = True
-    tracking_max_distance: float = 50.0
-    reset_tracking_after_frames: int = 30
+    tracking_max_distance: float = 80.0
+    reset_tracking_after_frames: int = 60
     
     # Class names for recyclable materials
     target_classes: List[str] = field(default_factory=lambda: [

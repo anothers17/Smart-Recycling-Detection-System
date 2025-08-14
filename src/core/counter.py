@@ -78,38 +78,60 @@ class CountingLine:
             self.y = None
     
     def check_crossing(self, prev_pos: Tuple[float, float], 
-                      curr_pos: Tuple[float, float]) -> Optional[str]:
-        """
-        Check if object crossed the counting line.
-        
-        Args:
-            prev_pos: Previous position (x, y)
-            curr_pos: Current position (x, y)
+                  curr_pos: Tuple[float, float]) -> Optional[str]:
+            """
+            Check if object crossed the counting line.
             
-        Returns:
-            Crossing direction or None if no crossing detected
-        """
-        if self.x is not None:
-            # Vertical line crossing
-            prev_x, curr_x = prev_pos[0], curr_pos[0]
+            Args:
+                prev_pos: Previous position (x, y)
+                curr_pos: Current position (x, y)
+                
+            Returns:
+                Crossing direction or None if no crossing detected
+            """
+            if self.x is not None:
+                # Vertical line crossing
+                prev_x, curr_x = prev_pos[0], curr_pos[0]
+                
+                # Check if line was actually crossed
+                if prev_x < self.x and curr_x > self.x:
+                    return 'left_to_right'
+                elif prev_x > self.x and curr_x < self.x:
+                    return 'right_to_left'
             
-            # Check if crossed the line
-            if (prev_x < self.x - self.tolerance and curr_x > self.x + self.tolerance):
-                return 'left_to_right'
-            elif (prev_x > self.x + self.tolerance and curr_x < self.x - self.tolerance):
-                return 'right_to_left'
-        
-        elif self.y is not None:
-            # Horizontal line crossing
-            prev_y, curr_y = prev_pos[1], curr_pos[1]
+            elif self.y is not None:
+                # Horizontal line crossing
+                prev_y, curr_y = prev_pos[1], curr_pos[1]
+                
+                if prev_y < self.y and curr_y > self.y:
+                    return 'top_to_bottom'
+                elif prev_y > self.y and curr_y < self.y:
+                    return 'bottom_to_top'
             
-            # Check if crossed the line
-            if (prev_y < self.y - self.tolerance and curr_y > self.y + self.tolerance):
-                return 'top_to_bottom'
-            elif (prev_y > self.y + self.tolerance and curr_y < self.y - self.tolerance):
-                return 'bottom_to_top'
+            return None
         
-        return None
+    def has_crossed_line(self, positions: deque) -> Optional[str]:
+            """
+            Check if any trajectory in the position history crosses the line.
+            """
+            if len(positions) < 2:
+                return None
+            
+            # Check all consecutive position pairs
+            for i in range(len(positions) - 1):
+                crossing = self.check_crossing(positions[i], positions[i + 1])
+                if crossing:
+                    return crossing
+            
+            # Check first to last position for objects that skip frames
+            if len(positions) >= 3:
+                first_pos = positions[0]
+                last_pos = positions[-1]
+                crossing = self.check_crossing(first_pos, last_pos)
+                if crossing:
+                    return crossing
+            
+            return None
 
 
 class ObjectTracker:
@@ -191,6 +213,7 @@ class ObjectTracker:
         
         return self.tracked_objects
     
+    
     def _calculate_distance(self, pos1: Tuple[float, float], 
                           pos2: Tuple[float, float]) -> float:
         """Calculate Euclidean distance between two positions."""
@@ -239,11 +262,15 @@ class RecyclingCounter:
             max_age=self.config.counting.reset_tracking_after_frames
         )
         
-        # Counting statistics
+        # Enhanced counting statistics
         self.total_count = 0
         self.class_counts: Dict[str, int] = defaultdict(int)
         self.direction_counts: Dict[str, int] = defaultdict(int)
         self.crossed_objects: Set[str] = set()
+        
+        # Track target classes from config
+        self.target_classes = set(self.config.counting.target_classes)
+        logger.info(f"Counter initialized with target classes: {self.target_classes}")
         
         # Performance tracking
         self.frame_count = 0
@@ -264,8 +291,24 @@ class RecyclingCounter:
         self.frame_count += 1
         
         try:
-            # Update object tracking
-            tracked_objects = self.tracker.update(detection_result.detections)
+            # Log incoming detections for debugging
+            if detection_result.detections:
+                detected_classes = [det.class_name for det in detection_result.detections]
+                logger.debug(f"Frame {self.frame_count}: Detected classes: {detected_classes}")
+            
+            # Filter detections by target classes if specified
+            filtered_detections = []
+            for detection in detection_result.detections:
+                if not self.target_classes or detection.class_name in self.target_classes:
+                    filtered_detections.append(detection)
+                else:
+                    logger.debug(f"Filtered out class: {detection.class_name}")
+            
+            if filtered_detections:
+                logger.debug(f"After filtering: {[det.class_name for det in filtered_detections]}")
+            
+            # Update object tracking with filtered detections
+            tracked_objects = self.tracker.update(filtered_detections)
             
             # Check for line crossings
             new_crossings = self._check_crossings(tracked_objects)
@@ -280,7 +323,7 @@ class RecyclingCounter:
                     self.direction_counts[direction] += 1
                     self.crossed_objects.add(obj_id)
                     
-                    logger.info(f"Object crossed: {tracked_obj.class_name} ({direction})")
+                    logger.info(f"✅ OBJECT COUNTED: {tracked_obj.class_name} ({direction}) - Total: {self.total_count}")
             
             # Log periodic statistics
             if self.frame_count % 100 == 0:
@@ -309,32 +352,66 @@ class RecyclingCounter:
             if tracked_obj.has_crossed:
                 continue
             
-            # Need at least 2 positions to check crossing
+            # Need at least 2 positions
             if len(tracked_obj.positions) < 2:
                 continue
             
             # Check for crossing
-            prev_pos = tracked_obj.positions[-2]
-            curr_pos = tracked_obj.positions[-1]
-            
-            crossing_direction = self.counting_line.check_crossing(prev_pos, curr_pos)
+            crossing_direction = self.counting_line.has_crossed_line(tracked_obj.positions)
             
             if crossing_direction:
-                tracked_obj.has_crossed = True
-                tracked_obj.crossing_direction = crossing_direction
-                new_crossings[obj_id] = crossing_direction
+                # Validate crossing to prevent false positives
+                if self._validate_crossing(tracked_obj):
+                    tracked_obj.has_crossed = True
+                    tracked_obj.crossing_direction = crossing_direction
+                    new_crossings[obj_id] = crossing_direction
+                    
+                    logger.info(f"🎯 CROSSING DETECTED: {obj_id} ({crossing_direction})")
+                else:
+                    logger.debug(f"Crossing validation failed for {obj_id}")
         
         return new_crossings
+    
+    def _validate_crossing(self, tracked_obj: TrackedObject) -> bool:
+        """
+        Validate that a crossing is legitimate.
+        """
+        if len(tracked_obj.positions) < 2:
+            return False
+        
+        # Check minimum distance traveled
+        first_pos = tracked_obj.positions[0]
+        last_pos = tracked_obj.positions[-1]
+        distance = math.sqrt((last_pos[0] - first_pos[0])**2 + 
+                            (last_pos[1] - first_pos[1])**2)
+        
+        min_distance = 15  # Minimum pixels for valid crossing
+        if distance < min_distance:
+            logger.debug(f"Distance too small: {distance:.1f} < {min_distance}")
+            return False
+        
+        # Check confidence
+        avg_confidence = tracked_obj.get_average_confidence()
+        if avg_confidence < 0.3:
+            logger.debug(f"Confidence too low: {avg_confidence:.3f} < 0.5")
+            return False
+        
+        # Check if class is in target classes
+        if self.target_classes and tracked_obj.class_name not in self.target_classes:
+            logger.debug(f"Class not in targets: {tracked_obj.class_name}")
+            return False
+        
+        return True
     
     def _log_statistics(self):
         """Log current counting statistics."""
         runtime = time.time() - self.start_time
         fps = self.frame_count / runtime if runtime > 0 else 0
         
-        logger.info(f"Counting Statistics - Total: {self.total_count}, "
-                   f"Frame: {self.frame_count}, FPS: {fps:.2f}")
-        logger.info(f"Class counts: {dict(self.class_counts)}")
-        logger.info(f"Direction counts: {dict(self.direction_counts)}")
+        logger.info(f"📊 COUNTING STATS - Total: {self.total_count}, Frame: {self.frame_count}, FPS: {fps:.2f}")
+        logger.info(f"📊 Class counts: {dict(self.class_counts)}")
+        logger.info(f"📊 Direction counts: {dict(self.direction_counts)}")
+        logger.info(f"📊 Target classes: {self.target_classes}")
     
     def get_statistics(self) -> Dict[str, any]:
         """
@@ -354,7 +431,8 @@ class RecyclingCounter:
             'runtime_seconds': runtime,
             'average_fps': fps,
             'tracked_objects': self.tracker.get_object_count(),
-            'crossed_objects': len(self.crossed_objects)
+            'crossed_objects': len(self.crossed_objects),
+            'target_classes': list(self.target_classes)
         }
     
     def get_count_for_class(self, class_name: str) -> int:
@@ -381,7 +459,7 @@ class RecyclingCounter:
         # Reset tracker
         self.tracker.reset()
         
-        logger.info("Counter reset completed")
+        logger.info("✨ Counter reset completed")
     
     def set_counting_line(self, x: Optional[int] = None, y: Optional[int] = None):
         """
@@ -393,9 +471,19 @@ class RecyclingCounter:
         """
         try:
             self.counting_line = CountingLine(x=x, y=y)
-            logger.info(f"Counting line updated: x={x}, y={y}")
+            logger.info(f"📏 Counting line updated: x={x}, y={y}")
         except ValueError as e:
             logger.error(f"Invalid counting line configuration: {e}")
+    
+    def set_target_classes(self, classes: List[str]):
+        """
+        Update target classes for counting.
+        
+        Args:
+            classes: List of class names to count
+        """
+        self.target_classes = set(classes)
+        logger.info(f"🎯 Target classes updated: {self.target_classes}")
     
     def export_statistics(self, filepath: str) -> bool:
         """
@@ -424,7 +512,7 @@ class RecyclingCounter:
             with open(output_path, 'w') as f:
                 json.dump(stats, f, indent=2, default=str)
             
-            logger.info(f"Statistics exported to: {filepath}")
+            logger.info(f"📁 Statistics exported to: {filepath}")
             return True
             
         except Exception as e:
@@ -434,24 +522,32 @@ class RecyclingCounter:
 
 # Utility functions
 def create_counter(line_x: Optional[int] = None, 
-                  line_y: Optional[int] = None) -> RecyclingCounter:
+                  line_y: Optional[int] = None,
+                  target_classes: Optional[List[str]] = None) -> RecyclingCounter:
     """
-    Create a recycling counter with specified counting line.
+    Create a recycling counter with specified counting line and target classes.
     
     Args:
         line_x: X coordinate for vertical counting line
         line_y: Y coordinate for horizontal counting line
+        target_classes: List of classes to count
         
     Returns:
         RecyclingCounter instance
     """
     counting_line = CountingLine(x=line_x, y=line_y) if (line_x or line_y) else None
-    return RecyclingCounter(counting_line)
+    counter = RecyclingCounter(counting_line)
+    
+    if target_classes:
+        counter.set_target_classes(target_classes)
+    
+    return counter
 
 
 def count_objects_simple(detections: List[Detection], 
                         line_position: int, 
-                        orientation: str = 'vertical') -> Dict[str, int]:
+                        orientation: str = 'vertical',
+                        target_classes: Optional[List[str]] = None) -> Dict[str, int]:
     """
     Simple object counting without tracking (for basic use cases).
     
@@ -459,6 +555,7 @@ def count_objects_simple(detections: List[Detection],
         detections: List of detections
         line_position: Position of counting line
         orientation: 'vertical' or 'horizontal'
+        target_classes: List of classes to count
         
     Returns:
         Dictionary with class counts
@@ -466,6 +563,10 @@ def count_objects_simple(detections: List[Detection],
     counts = defaultdict(int)
     
     for detection in detections:
+        # Filter by target classes if specified
+        if target_classes and detection.class_name not in target_classes:
+            continue
+            
         center_x, center_y = detection.center
         
         if orientation == 'vertical':
