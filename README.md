@@ -215,7 +215,7 @@ Build standalone executable with PyInstaller:
 
 ```bash
 pip install pyinstaller
-python scripts/build_executable.sh
+bash scripts/build_executable.sh
 ```
 
 ### Docker Deployment
