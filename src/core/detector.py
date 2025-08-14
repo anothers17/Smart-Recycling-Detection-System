@@ -304,7 +304,9 @@ class RecyclingDetector:
                 confidence_threshold = self.config.detection.confidence_threshold
             
             if target_classes is None:
-                target_classes = self.config.counting.target_classes
+                target_classes = self.config.counting.target_classes.copy()
+            
+            logger.debug(f"Detecting with confidence: {confidence_threshold}, target classes: {target_classes}")
             
             # Run inference
             results = self.model.predict(
@@ -333,8 +335,9 @@ class RecyclingDetector:
                     for i in range(len(xyxys)):
                         class_name = result.names[class_ids[i]]
                         
-                        # Filter by target classes if specified
+                        # FIXED: Enable target class filtering
                         if target_classes and class_name not in target_classes:
+                            logger.debug(f"Filtering out class: {class_name} (not in target classes)")
                             continue
                         
                         detection = Detection(
@@ -345,14 +348,20 @@ class RecyclingDetector:
                         )
                         
                         detections.append(detection)
+                        logger.debug(f"Added detection: {class_name} with confidence {detection.confidence:.3f}")
             
             processing_time = time.time() - start_time
             
             # Update performance monitor
             self.performance_monitor.update(processing_time, len(detections))
             
-            # Log performance
+            # Log detection summary
+            class_counts = {}
+            for det in detections:
+                class_counts[det.class_name] = class_counts.get(det.class_name, 0) + 1
+            
             logger.debug(f"Detection completed: {len(detections)} objects in {processing_time:.4f}s")
+            logger.debug(f"Class distribution: {class_counts}")
             
             return DetectionResult(
                 detections=detections,
