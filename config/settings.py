@@ -107,7 +107,7 @@ class AppConfig:
     # Application metadata
     app_name: str = "Smart Recycling Detection"
     app_version: str = "1.0.0"
-    author: str = "Your Name"
+    author: str = "Sulhee Sama-alee"
     description: str = "AI-powered recycling detection system using YOLOv8"
     
     def __post_init__(self):
