@@ -327,7 +327,7 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 - **Facebook**: Sulhee Sama-alee
 - **GitHub**: [@anothers17](https://github.com/anothers17)
 - **Email**: sulhee8@gmail.com
-- **LinkedIn**: [Connect with me](https://www.linkedin.com/in/sulhee-sama-alee-5a5054a9/)
+- **LinkedIn**: [Connect with me](https://www.linkedin.com/in/sulhee/)
 
 ---
 
