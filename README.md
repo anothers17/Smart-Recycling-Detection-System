@@ -81,9 +81,10 @@ An intelligent real-time recycling detection system powered by YOLOv8, designed 
    ```
 
 4. **Add your trained model**
-   ```bash
-   cp path/to/your/best.pt src/resources/models/
-   ```
+    ```bash
+    mkdir -p src/resources/models/
+    cp path/to/your/best.pt src/resources/models/
+    ```
 
 5. **Run the application**
    ```bash
@@ -150,7 +151,7 @@ results = process_video_file(
 
 ### Settings File
 
-Configure settings in `config/app_config.json`:
+Configure settings in `config/settings.py` (primary configuration) or override with `config/app_config.json` (optional JSON configuration):
 
 ```json
 {
