@@ -12,93 +12,95 @@ from PyQt5.QtWidgets import QApplication
 
 from config.logging_config import get_logger
 
-logger = get_logger('gui')
+logger = get_logger("gui")
 
 
 class ModernColors:
     """Modern color palette for the application."""
-    
+
     # Primary colors
-    PRIMARY = "#2196F3"           # Blue
-    PRIMARY_DARK = "#1976D2"      # Dark Blue
-    PRIMARY_LIGHT = "#BBDEFB"     # Light Blue
-    
+    PRIMARY = "#2196F3"  # Blue
+    PRIMARY_DARK = "#1976D2"  # Dark Blue
+    PRIMARY_LIGHT = "#BBDEFB"  # Light Blue
+
     # Secondary colors
-    SECONDARY = "#4CAF50"         # Green
-    SECONDARY_DARK = "#388E3C"    # Dark Green
-    SECONDARY_LIGHT = "#C8E6C9"   # Light Green
-    
+    SECONDARY = "#4CAF50"  # Green
+    SECONDARY_DARK = "#388E3C"  # Dark Green
+    SECONDARY_LIGHT = "#C8E6C9"  # Light Green
+
     # Accent colors
-    ACCENT = "#FF9800"            # Orange
-    ACCENT_DARK = "#F57C00"       # Dark Orange
-    ACCENT_LIGHT = "#FFE0B2"      # Light Orange
-    
+    ACCENT = "#FF9800"  # Orange
+    ACCENT_DARK = "#F57C00"  # Dark Orange
+    ACCENT_LIGHT = "#FFE0B2"  # Light Orange
+
     # Status colors
-    SUCCESS = "#4CAF50"           # Green
-    WARNING = "#FF9800"           # Orange
-    ERROR = "#F44336"             # Red
-    INFO = "#2196F3"              # Blue
-    
+    SUCCESS = "#4CAF50"  # Green
+    WARNING = "#FF9800"  # Orange
+    ERROR = "#F44336"  # Red
+    INFO = "#2196F3"  # Blue
+
     # Neutral colors
-    BACKGROUND = "#F5F5F5"        # Light Gray
-    SURFACE = "#FFFFFF"           # White
-    ON_SURFACE = "#212121"        # Dark Gray
-    ON_BACKGROUND = "#424242"     # Medium Gray
-    
+    BACKGROUND = "#F5F5F5"  # Light Gray
+    SURFACE = "#FFFFFF"  # White
+    ON_SURFACE = "#212121"  # Dark Gray
+    ON_BACKGROUND = "#424242"  # Medium Gray
+
     # Text colors
-    TEXT_PRIMARY = "#212121"      # Dark Gray
-    TEXT_SECONDARY = "#757575"    # Medium Gray
-    TEXT_DISABLED = "#BDBDBD"     # Light Gray
-    TEXT_ON_PRIMARY = "#FFFFFF"   # White
-    
+    TEXT_PRIMARY = "#212121"  # Dark Gray
+    TEXT_SECONDARY = "#757575"  # Medium Gray
+    TEXT_DISABLED = "#BDBDBD"  # Light Gray
+    TEXT_ON_PRIMARY = "#FFFFFF"  # White
+
     # Border colors
-    BORDER = "#E0E0E0"            # Light Gray
-    BORDER_FOCUS = "#2196F3"      # Blue
-    BORDER_ERROR = "#F44336"      # Red
+    BORDER = "#E0E0E0"  # Light Gray
+    BORDER_FOCUS = "#2196F3"  # Blue
+    BORDER_ERROR = "#F44336"  # Red
 
 
 class ModernFonts:
     """Modern font definitions."""
-    
+
     @staticmethod
-    def get_font(size: int = 10, weight: str = "normal", family: str = "Segoe UI") -> QFont:
+    def get_font(
+        size: int = 10, weight: str = "normal", family: str = "Segoe UI"
+    ) -> QFont:
         """
         Get a QFont with modern styling.
-        
+
         Args:
             size: Font size
             weight: Font weight ("normal", "bold", "light")
             family: Font family
-            
+
         Returns:
             QFont object
         """
         font = QFont(family, size)
-        
+
         if weight == "bold":
             font.setWeight(QFont.Bold)
         elif weight == "light":
             font.setWeight(QFont.Light)
         else:
             font.setWeight(QFont.Normal)
-        
+
         return font
-    
+
     @staticmethod
     def heading_font(size: int = 16) -> QFont:
         """Get font for headings."""
         return ModernFonts.get_font(size, "bold")
-    
+
     @staticmethod
     def body_font(size: int = 10) -> QFont:
         """Get font for body text."""
         return ModernFonts.get_font(size)
-    
+
     @staticmethod
     def button_font(size: int = 10) -> QFont:
         """Get font for buttons."""
         return ModernFonts.get_font(size, "normal")
-    
+
     @staticmethod
     def mono_font(size: int = 9) -> QFont:
         """Get monospace font for code/logs."""
@@ -107,7 +109,7 @@ class ModernFonts:
 
 class ModernStyleSheet:
     """Modern stylesheet generator for different themes."""
-    
+
     @staticmethod
     def get_main_window_style() -> str:
         """Get stylesheet for main window."""
@@ -139,7 +141,7 @@ class ModernStyleSheet:
             color: {ModernColors.TEXT_SECONDARY};
         }}
         """
-    
+
     @staticmethod
     def get_button_style() -> str:
         """Get stylesheet for buttons."""
@@ -186,13 +188,23 @@ class ModernStyleSheet:
         
         QPushButton.error {{
             background-color: {ModernColors.ERROR};
+            color: {ModernColors.TEXT_PRIMARY};
         }}
-        
+
         QPushButton.error:hover {{
             background-color: #D32F2F;
         }}
+
+        QPushButton.info {{
+            background-color: {ModernColors.INFO};
+            color: {ModernColors.TEXT_PRIMARY};
+        }}
+
+        QPushButton.info:hover {{
+            background-color: {ModernColors.PRIMARY_DARK};
+        }}
         """
-    
+
     @staticmethod
     def get_input_style() -> str:
         """Get stylesheet for input fields."""
@@ -228,7 +240,7 @@ class ModernStyleSheet:
             border-color: {ModernColors.BORDER_FOCUS};
         }}
         """
-    
+
     @staticmethod
     def get_label_style() -> str:
         """Get stylesheet for labels."""
@@ -269,7 +281,7 @@ class ModernStyleSheet:
             color: {ModernColors.SUCCESS};
         }}
         """
-    
+
     @staticmethod
     def get_container_style() -> str:
         """Get stylesheet for containers and frames."""
@@ -310,7 +322,7 @@ class ModernStyleSheet:
             background-color: {ModernColors.SURFACE};
         }}
         """
-    
+
     @staticmethod
     def get_lcd_style() -> str:
         """Get stylesheet for LCD displays."""
@@ -335,7 +347,7 @@ class ModernStyleSheet:
             color: {ModernColors.TEXT_SECONDARY};
         }}
         """
-    
+
     @staticmethod
     def get_progress_style() -> str:
         """Get stylesheet for progress bars."""
@@ -352,7 +364,7 @@ class ModernStyleSheet:
             border-radius: 6px;
         }}
         """
-    
+
     @staticmethod
     def get_scrollbar_style() -> str:
         """Get stylesheet for scrollbars."""
@@ -407,19 +419,19 @@ class ModernStyleSheet:
 
 class ThemeManager:
     """Manages application themes and styling."""
-    
+
     def __init__(self):
         self.current_theme = "modern"
         self.themes = {
             "modern": self._get_modern_theme,
             "dark": self._get_dark_theme,
-            "light": self._get_light_theme
+            "light": self._get_light_theme,
         }
-    
+
     def apply_theme(self, app: QApplication, theme_name: str = "modern"):
         """
         Apply theme to application.
-        
+
         Args:
             app: QApplication instance
             theme_name: Name of theme to apply
@@ -428,16 +440,16 @@ class ThemeManager:
             if theme_name not in self.themes:
                 logger.warning(f"Unknown theme: {theme_name}, using modern")
                 theme_name = "modern"
-            
+
             stylesheet = self.themes[theme_name]()
             app.setStyleSheet(stylesheet)
-            
+
             self.current_theme = theme_name
             logger.info(f"Applied theme: {theme_name}")
-            
+
         except Exception as e:
             logger.error(f"Error applying theme: {e}")
-    
+
     def _get_modern_theme(self) -> str:
         """Get modern theme stylesheet."""
         styles = [
@@ -448,11 +460,11 @@ class ThemeManager:
             ModernStyleSheet.get_container_style(),
             ModernStyleSheet.get_lcd_style(),
             ModernStyleSheet.get_progress_style(),
-            ModernStyleSheet.get_scrollbar_style()
+            ModernStyleSheet.get_scrollbar_style(),
         ]
-        
+
         return "\n".join(styles)
-    
+
     def _get_dark_theme(self) -> str:
         """Get dark theme stylesheet."""
         # Override colors for dark theme
@@ -462,22 +474,22 @@ class ThemeManager:
             "ON_SURFACE": "#121212",
             "TEXT_PRIMARY": "#FFFFFF",
             "TEXT_SECONDARY": "#CCCCCC",
-            "BORDER": "#616161"
+            "BORDER": "#616161",
         }
-        
+
         # Create dark theme stylesheet
         # This would involve modifying the modern theme with dark colors
         return self._get_modern_theme()  # Simplified for now
-    
+
     def _get_light_theme(self) -> str:
         """Get light theme stylesheet."""
         # Light theme is essentially the modern theme
         return self._get_modern_theme()
-    
+
     def get_available_themes(self) -> list:
         """Get list of available themes."""
         return list(self.themes.keys())
-    
+
     def get_current_theme(self) -> str:
         """Get current theme name."""
         return self.current_theme
@@ -500,10 +512,10 @@ def get_icon_color() -> str:
 def get_status_color(status: str) -> str:
     """
     Get color for status indicators.
-    
+
     Args:
         status: Status type ("success", "warning", "error", "info")
-        
+
     Returns:
         Color hex string
     """
@@ -511,7 +523,7 @@ def get_status_color(status: str) -> str:
         "success": ModernColors.SUCCESS,
         "warning": ModernColors.WARNING,
         "error": ModernColors.ERROR,
-        "info": ModernColors.INFO
+        "info": ModernColors.INFO,
     }
-    
+
     return colors.get(status, ModernColors.TEXT_PRIMARY)

@@ -1,0 +1,94 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.env
+.venv
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.pytest_cache/
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Documentation
+README.md
+docs/
+*.md
+
+# Large data files and models (unless specifically needed)
+*.pkl
+*.h5
+*.pth
+*.onnx
+models/
+dataset/
+data/
+datasets/
+
+# Output directories
+output/
+results/
+logs/
+temp/
+tmp/
+
+# Development files
+tests/
+test/
+.pytest_cache/
+jupyter/
+notebooks/
+*.ipynb
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Node modules (if any)
+node_modules/
+
+# Temporary files
+*.tmp
+*.temp

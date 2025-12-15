@@ -10,7 +10,7 @@ from setuptools import setup, find_packages
 from pathlib import Path
 
 # Read README file
-README = (Path(__file__).parent / "README.md").read_text()
+README = (Path(__file__).parent / "README.md").read_text(encoding="utf-8")
 
 # Read requirements
 requirements = []
@@ -18,24 +18,22 @@ requirements_file = Path(__file__).parent / "requirements.txt"
 if requirements_file.exists():
     with open(requirements_file) as f:
         requirements = [
-            line.strip() 
-            for line in f 
-            if line.strip() and not line.startswith('#')
+            line.strip() for line in f if line.strip() and not line.startswith("#")
         ]
 
 setup(
     name="smart-recycling-detection",
     version="1.0.0",
-    author="Your Name",
-    author_email="your.email@example.com",
+    author="Sulhee Sama-alee",
+    author_email="Sulhee Sama-alee <sulhee8@gmail.com>",
     description="AI-powered recyclable material detection and counting system",
     long_description=README,
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/smart-recycling-detection",
+    url="https://github.com/anothers17/smart-recycling-detection",
     project_urls={
-        "Bug Tracker": "https://github.com/yourusername/smart-recycling-detection/issues",
-        "Documentation": "https://github.com/yourusername/smart-recycling-detection/wiki",
-        "Source Code": "https://github.com/yourusername/smart-recycling-detection",
+        "Bug Tracker": "https://github.com/anothers17/smart-recycling-detection/issues",
+        "Documentation": "https://github.com/anothers17/smart-recycling-detection/wiki",
+        "Source Code": "https://github.com/anothers17/smart-recycling-detection",
     },
     packages=find_packages(where="src"),
     package_dir={"": "src"},

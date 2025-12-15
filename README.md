@@ -150,23 +150,26 @@ results = process_video_file(
 
 ### Settings File
 
-Configure settings in `settings.yaml`:
+Configure settings in `config/app_config.json`:
 
-```yaml
-detection:
-  confidence_threshold: 0.7
-  input_size: 640
-  device: "auto"  # Options: "auto", "cpu", "cuda", "mps"
-
-counting:
-  line_position_x: 300
-  target_classes: ["bottle-glass", "bottle-plastic", "tin can"]
-  tracking_enabled: true
-
-ui:
-  theme: "modern"  # Options: "modern", "dark", "light"
-  window_width: 1240
-  window_height: 730
+```json
+{
+  "detection": {
+    "confidence_threshold": 0.7,
+    "input_size": 640,
+    "device": "auto"
+  },
+  "counting": {
+    "line_position_x": 200,
+    "target_classes": ["bottle-glass", "bottle-plastic", "tin can"],
+    "tracking_enabled": true
+  },
+  "ui": {
+    "theme": "modern",
+    "window_width": 1240,
+    "window_height": 730
+  }
+}
 ```
 
 ### Environment Variables

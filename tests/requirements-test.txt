@@ -1,0 +1,104 @@
+# Test requirements for Smart Recycling Detection System
+
+# Core testing framework
+pytest>=7.0.0
+pytest-cov>=4.0.0
+pytest-mock>=3.10.0
+pytest-xdist>=3.0.0          # Parallel test execution
+pytest-timeout>=2.1.0        # Test timeout handling
+pytest-benchmark>=4.0.0      # Performance benchmarking
+pytest-html>=3.1.0          # HTML test reports
+pytest-json-report>=1.5.0   # JSON test reports
+
+# Testing utilities
+hypothesis>=6.70.0           # Property-based testing
+factory-boy>=3.2.0          # Test data factories
+faker>=18.0.0               # Fake data generation
+responses>=0.23.0           # HTTP request mocking
+freezegun>=1.2.0            # Time/date mocking
+
+# Code quality and linting
+black>=23.0.0               # Code formatting
+isort>=5.12.0               # Import sorting
+flake8>=6.0.0               # Linting
+pylint>=2.17.0              # Advanced linting
+mypy>=1.3.0                 # Type checking
+bandit>=1.7.0               # Security linting
+
+# Coverage and reporting
+coverage[toml]>=7.0.0       # Coverage measurement
+coverage-badge>=1.1.0       # Coverage badges
+pytest-clarity>=1.0.1       # Better test output
+
+# Performance and profiling
+memory-profiler>=0.60.0     # Memory usage profiling
+psutil>=5.9.0               # System and process utilities
+line-profiler>=4.0.0        # Line-by-line profiling
+py-spy>=0.3.14              # Sampling profiler
+
+# Documentation testing
+doctest>=2.7                # Docstring testing
+sphinx>=6.0.0               # Documentation generation
+sphinx-rtd-theme>=1.2.0     # Documentation theme
+
+# Data validation and testing
+cerberus>=1.3.4             # Data validation
+jsonschema>=4.17.0          # JSON schema validation
+pydantic>=1.10.0            # Data validation with types
+
+# Image and computer vision testing
+opencv-python>=4.7.0        # Computer vision library
+Pillow>=9.5.0               # Image processing
+scikit-image>=0.20.0        # Image processing algorithms
+
+# Scientific computing for tests
+numpy>=1.24.0               # Numerical computing
+scipy>=1.10.0               # Scientific computing
+pandas>=2.0.0               # Data manipulation
+matplotlib>=3.7.0           # Plotting (for test visualizations)
+
+# Machine learning testing utilities
+scikit-learn>=1.2.0         # Machine learning library
+joblib>=1.2.0               # Parallel computing
+
+# Configuration and environment
+python-dotenv>=1.0.0        # Environment variable management
+pyyaml>=6.0                 # YAML configuration files
+toml>=0.10.2                # TOML configuration files
+
+# Utilities
+click>=8.1.0                # Command line interface
+rich>=13.3.0                # Rich terminal output
+tqdm>=4.65.0                # Progress bars
+colorama>=0.4.6             # Cross-platform colored terminal text
+
+# Development and debugging
+ipdb>=0.13.13               # Enhanced debugger
+pdbpp>=0.10.3               # Better pdb
+icecream>=2.1.3             # Debug print statements
+
+# Async testing (if needed)
+pytest-asyncio>=0.21.0      # Async test support
+aioresponses>=0.7.4         # Async HTTP mocking
+
+# Database testing (if needed)
+pytest-postgresql>=4.1.1    # PostgreSQL testing
+pytest-redis>=3.0.0         # Redis testing
+
+# Web testing (if needed)
+selenium>=4.9.0             # Web browser automation
+playwright>=1.33.0          # Modern web testing
+
+# API testing
+requests>=2.30.0            # HTTP library
+httpx>=0.24.0               # Async HTTP client
+responses>=0.23.0           # HTTP request mocking
+
+# File format testing
+openpyxl>=3.1.0             # Excel file handling
+pandas>=2.0.0               # CSV and data file handling
+h5py>=3.8.0                 # HDF5 file format
+
+# Security testing
+safety>=2.3.0               # Security vulnerability scanning
+pip-audit>=2.5.0            # Security auditing

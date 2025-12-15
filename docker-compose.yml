@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  recycling-detector:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        BUILD_DATE: ${BUILD_DATE:-$(date -u +'%Y-%m-%dT%H:%M:%SZ')}
+        VCS_REF: ${VCS_REF:-$(git rev-parse HEAD)}
+    container_name: smart-recycling-detection
+    volumes:
+      # Mount input/output directories
+      - ./input:/app/input:ro
+      - ./output:/app/output
+      - ./models:/app/models:ro
+      - ./logs:/app/logs
+      # For X11 forwarding (if using GUI)
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    environment:
+      - DISPLAY=${DISPLAY:-:0}
+      - QT_X11_NO_MITSHM=1
+      - PYTHONUNBUFFERED=1
+    # Uncomment if your app serves HTTP
+    # ports:
+    #   - "8000:8000"
+    # For GPU support (if available)
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+    network_mode: "host"  # For X11 forwarding
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; sys.path.append('/app'); import src.main; print('OK')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # Optional: Add a volume for persistent model storage
+volumes:
+  models_data:
+    driver: local
