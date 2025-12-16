@@ -1,7 +1,7 @@
 # 🌱 Smart Recycling Detection System 
 
 ![Python](https://img.shields.io/badge/python-v3.8+-blue.svg)
-![License](https://img.shields.io/badge/license-SUT-green.svg)
+![License](https://img.shields.io/badge/license-another17-green.svg)
 ![Platform](https://img.shields.io/badge/platform-window-lightgrey.svg)
 ![YOLOv8](https://img.shields.io/badge/YOLOv8-Ultralytics-orange.svg)
 ![PyQt5](https://img.shields.io/badge/GUI-PyQt5-green.svg)
