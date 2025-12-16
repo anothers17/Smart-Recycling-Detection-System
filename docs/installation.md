@@ -379,6 +379,8 @@ python -m pytest tests/ --cov=src --cov-report=html
 ## 📦 Creating Standalone Executable
 
 ### Build Executable
+
+#### On Linux/macOS:
 ```bash
 # Make build script executable
 chmod +x scripts/build_executable.sh
@@ -387,6 +389,14 @@ chmod +x scripts/build_executable.sh
 ./scripts/build_executable.sh
 
 # The executable will be created in dist/ directory
+```
+
+#### On Windows:
+```cmd
+# Run the build script
+scripts\build_executable.bat
+
+# The executable will be created in dist\ directory
 ```
 
 ### Distribute Executable

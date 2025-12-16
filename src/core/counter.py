@@ -547,7 +547,7 @@ def create_counter(
     target_classes: Optional[List[str]] = None,
 ) -> RecyclingCounter:
     """
-    Create a recycling counter with specified counting line and target classes.
+    Create a recycling counter with specified  and target classes.
 
     Args:
         line_x: X coordinate for vertical counting line
