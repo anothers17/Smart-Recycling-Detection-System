@@ -69,8 +69,8 @@ For developers who want to modify the code:
 
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/smart-recycling-detection.git
-cd smart-recycling-detection
+git clone https://github.com/anothers17/Smart-Recycling-Detection-System.git
+cd Smart-Recycling-Detection-System
 
 # Create virtual environment
 python -m venv venv
@@ -110,7 +110,7 @@ docker run -it --rm \
 
 ### Method 4: Pre-built Executable
 
-Download pre-built executables from the [Releases](https://github.com/yourusername/smart-recycling-detection/releases) page:
+Download pre-built executables from the [Releases](https://github.com/anothers17/Smart-Recycling-Detection-System/releases) page:
 
 1. Download the appropriate version for your platform
 2. Extract the archive
@@ -141,8 +141,8 @@ nvcc --version
 #### Install Application
 ```powershell
 # Clone repository
-git clone https://github.com/yourusername/smart-recycling-detection.git
-cd smart-recycling-detection
+git clone https://github.com/anothers17/Smart-Recycling-Detection-System.git
+cd Smart-Recycling-Detection-System
 
 # Create virtual environment
 python -m venv venv
@@ -172,8 +172,8 @@ brew install opencv
 #### Install Application
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/smart-recycling-detection.git
-cd smart-recycling-detection
+git clone https://github.com/anothers17/Smart-Recycling-Detection-System.git
+cd Smart-Recycling-Detection-System
 
 # Create virtual environment
 python3 -m venv venv
@@ -209,8 +209,8 @@ sudo apt install python3-pyqt5 python3-pyqt5.qtmultimedia
 #### Install Application
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/smart-recycling-detection.git
-cd smart-recycling-detection
+git clone https://github.com/anothers17/Smart-Recycling-Detection-System.git
+cd Smart-Recycling-Detection-System
 
 # Create virtual environment
 python3 -m venv venv
@@ -360,9 +360,9 @@ python src/main.py --version
 python -c "
 import sys
 sys.path.append('.')
-from src.core.detector import RecyclingDetector
-from src.core.counter import RecyclingCounter
-from src.gui.main_window import MainWindow
+from src.detection.detector import RecyclingDetector
+from src.detection.counter import RecyclingCounter
+from src.ui.main_window import MainWindow
 print('All components imported successfully!')
 "
 ```
@@ -413,8 +413,8 @@ scripts\build_executable.bat
 ## 🆘 Getting Help
 
 ### Support Channels
-- **GitHub Issues**: [Report bugs and issues](https://github.com/yourusername/smart-recycling-detection/issues)
-- **Discussions**: [Ask questions and get help](https://github.com/yourusername/smart-recycling-detection/discussions)
+- **GitHub Issues**: [Report bugs and issues](https://github.com/anothers17/Smart-Recycling-Detection-System/issues)
+- **Discussions**: [Ask questions and get help](https://github.com/anothers17/Smart-Recycling-Detection-System/discussions)
 - **Email**: your.email@example.com
 
 ### Diagnostic Information

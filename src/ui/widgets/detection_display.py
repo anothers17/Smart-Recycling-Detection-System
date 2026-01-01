@@ -263,7 +263,10 @@ class DetectionDisplayWidget(QWidget):
 
         # Model selection
         model_layout = QHBoxLayout()
-        model_layout.addWidget(QLabel("Model:"))
+        model_label = QLabel("Model:")
+        model_label.setFixedWidth(200)
+        model_label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        model_layout.addWidget(model_label)
         self.model_selector = FileSelectionWidget("model")
         model_layout.addWidget(self.model_selector)
         file_selection_layout.addLayout(model_layout)
@@ -287,7 +290,10 @@ class DetectionDisplayWidget(QWidget):
         # Camera selection
         self.camera_widget = QWidget()
         self.camera_layout = QHBoxLayout(self.camera_widget)
-        self.camera_layout.addWidget(QLabel("Camera:"))
+        camera_label = QLabel("Camera:")
+        camera_label.setFixedWidth(200)
+        camera_label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        self.camera_layout.addWidget(camera_label)
         self.camera_combo = QComboBox()
         self.camera_combo.setMinimumWidth(150)
         self.camera_layout.addWidget(self.camera_combo)
@@ -296,7 +302,10 @@ class DetectionDisplayWidget(QWidget):
 
         # Video selection
         video_layout = QHBoxLayout()
-        video_layout.addWidget(QLabel("Video:"))
+        video_label = QLabel("Video:")
+        video_label.setFixedWidth(200)
+        video_label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        video_layout.addWidget(video_label)
         self.video_selector = FileSelectionWidget("video")
         video_layout.addWidget(self.video_selector)
         file_selection_layout.addLayout(video_layout)

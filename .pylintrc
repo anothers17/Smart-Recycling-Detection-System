@@ -1,0 +1,24 @@
+[MASTER]
+ignore=venv,tests,scripts
+
+[MESSAGES CONTROL]
+# Disable some common noise in GUI/Vision projects
+disable=
+    C0114, # missing-module-docstring (handled by file headers)
+    C0115, # missing-class-docstring
+    C0116, # missing-function-docstring
+    R0902, # too-many-instance-attributes (common in UI)
+    R0903, # too-many-arguments
+    R0913, # too-many-arguments
+    R0914, # too-many-locals
+    R0915, # too-many-statements
+    W1203, # logging-fstring-interpolation (f-strings are fine in modern Python)
+    E0611, # no-name-in-module (PyQt5/CV2 often trigger this)
+    E1101, # no-member (CV2/PyQt5 dynamics)
+
+[FORMAT]
+max-line-length=120
+
+[BASIC]
+# Allow shorter variable names for math/vision (x, y, h, w)
+good-names=i,j,k,ex,Run,_,x,y,w,h,id,f,d,c

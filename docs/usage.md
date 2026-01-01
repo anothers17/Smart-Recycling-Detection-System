@@ -258,7 +258,7 @@ ui:
 #### Process Multiple Videos
 ```python
 # Python script for batch processing
-from src.core.video_processor import process_video_file
+from src.detection.processor import VideoProcessor
 
 videos = ["video1.mp4", "video2.mp4", "video3.mp4"]
 model_path = "models/best.pt"
@@ -381,7 +381,7 @@ video_processor.set_skip_frames(2)  # Process every 3rd frame
    - **Light**: High contrast light theme
 
 **Custom Themes**:
-- Edit `src/gui/styles/custom_theme.qss`
+- Edit `src/ui/styles/modern.qss` (or your chosen theme)
 - Restart application to apply changes
 
 ### Counting Line Customization

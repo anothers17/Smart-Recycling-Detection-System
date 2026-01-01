@@ -8,10 +8,11 @@ and managing RecyclingDetector instances with proper error handling.
 import time
 from pathlib import Path
 from typing import Optional, Union
+import numpy as np
 
 from config.settings import get_config
 from config.logging_config import get_logger
-from src.core.detector import RecyclingDetector
+from .detector import RecyclingDetector, DetectionResult
 
 logger = get_logger("detection")
 
@@ -112,3 +113,60 @@ def load_detector(
         Loaded detector instance
     """
     return DetectorFactory.create_detector(model_path, device)
+
+
+def detect_image(
+    image: np.ndarray, model_path: Union[str, Path], confidence_threshold: float = 0.5
+) -> DetectionResult:
+    """
+    Convenience function to perform detection on a single image.
+
+    Args:
+        image: Input image
+        model_path: Path to model
+        confidence_threshold: Confidence threshold
+
+    Returns:
+        DetectionResult instance
+    """
+    with RecyclingDetector() as detector:
+        detector.load_model(model_path)
+        return detector.detect(image, confidence_threshold=confidence_threshold)
+
+
+def benchmark_detector(
+    detector: RecyclingDetector, num_iterations: int = 10, image_size: tuple = (640, 640)
+) -> dict:
+    """
+    Benchmark detector performance.
+
+    Args:
+        detector: Detector instance
+        num_iterations: Number of iterations
+        image_size: Size of dummy image to use
+
+    Returns:
+        Dictionary with benchmark results
+    """
+    image = np.random.randint(0, 255, (*image_size, 3), dtype=np.uint8)
+    total_time = 0
+    total_detections = 0
+
+    # Warm up
+    detector.warm_up(num_iterations=2)
+
+    for _ in range(num_iterations):
+        result = detector.detect(image)
+        total_time += result.processing_time
+        total_detections += len(result.detections)
+
+    avg_processing_time = total_time / num_iterations
+    avg_fps = 1.0 / avg_processing_time if avg_processing_time > 0 else 0
+
+    return {
+        "avg_fps": avg_fps,
+        "total_time": total_time,
+        "num_iterations": num_iterations,
+        "avg_processing_time": avg_processing_time,
+        "avg_detections": total_detections / num_iterations,
+    }

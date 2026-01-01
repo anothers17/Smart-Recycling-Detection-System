@@ -29,12 +29,13 @@ from PyQt5.QtGui import QIcon, QKeySequence, QCloseEvent
 
 from config.settings import get_config
 from config.logging_config import get_logger
-from src.core.detector import RecyclingDetector
-from src.core.counter import RecyclingCounter
-from src.core.video_processor import VideoProcessor, create_processor
-from src.gui.widgets.detection_display import DetectionDisplayWidget
-from src.gui.widgets.control_panel import ControlPanelWidget
-from src.gui.styles.modern_style import theme_manager, apply_modern_style
+from src.detection.detector import RecyclingDetector
+from src.detection.counter import RecyclingCounter
+from src.detection.processor import VideoProcessor, create_processor
+from src.hardware.factory import get_hardware_interface
+from src.ui.widgets.detection_display import DetectionDisplayWidget
+from src.ui.widgets.control_panel import ControlPanelWidget
+from src.ui.modern_style import theme_manager, apply_modern_style
 
 logger = get_logger("gui")
 
@@ -72,6 +73,8 @@ class MainWindow(QMainWindow):
         self.frame_count = 0
         self.start_time = None
 
+        # Show window maximized
+        self.showMaximized()
         # Set up UI
         self.setup_ui()
         self.setup_menu_bar()
@@ -88,7 +91,7 @@ class MainWindow(QMainWindow):
         """Set up the main user interface."""
         # Set window properties
         self.setWindowTitle(self.config.ui.window_title)
-        self.setMinimumSize(1200, 800)
+        self.setMinimumSize(1024, 768)
         self.resize(self.config.ui.window_width, self.config.ui.window_height)
 
         # Central widget
@@ -112,9 +115,9 @@ class MainWindow(QMainWindow):
         self.control_panel.setMinimumWidth(300)
         splitter.addWidget(self.control_panel)
 
-        # Set splitter proportions (70% display, 30% controls)
-        splitter.setStretchFactor(0, 7)
-        splitter.setStretchFactor(1, 3)
+        # Set splitter proportions (80% display, 20% controls)
+        splitter.setStretchFactor(0, 8)
+        splitter.setStretchFactor(1, 2)
 
         main_layout.addWidget(splitter)
 
@@ -226,6 +229,11 @@ class MainWindow(QMainWindow):
             # Initialize counter
             self.counter = RecyclingCounter()
 
+            # Initialize hardware
+            self.hardware = get_hardware_interface()
+            self.hardware.connect()
+            logger.info(f"Hardware initialized: {type(self.hardware).__name__}")
+            
             # Add initial log entry
             self.control_panel.add_log_entry("Application started", "SUCCESS")
             self.control_panel.add_log_entry("Ready to load model and video", "INFO")
@@ -307,9 +315,9 @@ class MainWindow(QMainWindow):
                 )
                 return
 
-            # Create video processor
+            # Create video processor with hardware
             self.video_processor = create_processor(
-                self.detector, self.counter, self.current_video_path
+                self.detector, self.counter, self.current_video_path, self.hardware
             )
 
             # Connect processor signals
@@ -321,6 +329,9 @@ class MainWindow(QMainWindow):
             self.video_processor.errorOccurred.connect(self._on_processing_error)
             self.video_processor.processingFinished.connect(
                 self._on_processing_finished
+            )
+            self.video_processor.hardwareActionTriggered.connect(
+                self._on_hardware_action_triggered
             )
 
             # Start processing
@@ -470,6 +481,12 @@ class MainWindow(QMainWindow):
 
         except Exception as e:
             logger.error(f"Error updating statistics: {e}")
+
+    @pyqtSlot(str, str, str)
+    def _on_hardware_action_triggered(self, class_name, action, status):
+        """Handle hardware action signals."""
+        logger.debug(f"Hardware action triggered: {class_name} {action} {status}")
+        self.control_panel.update_hardware_status(class_name, action, status)
 
     @pyqtSlot(dict)
     def _on_performance_updated(self, metrics):

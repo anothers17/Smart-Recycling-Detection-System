@@ -9,14 +9,14 @@ import os
 from pathlib import Path
 
 # Add the project root to the Python path
-project_root = Path(__file__).parent.parent
+project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 from config.settings import get_config
 from config.logging_config import get_logger
-from src.core.detector import RecyclingDetector
-from src.core.model_factory import DetectorFactory
-from src.core.counter import RecyclingCounter, create_counter
+from src.detection.detector import RecyclingDetector
+from src.detection.detector import DetectorFactory
+from src.detection.counter import RecyclingCounter, create_counter
 
 logger = get_logger("debug")
 

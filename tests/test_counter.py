@@ -1,4 +1,4 @@
-"""
+﻿"""
 Enhanced unit tests for the counting system.
 
 This module provides comprehensive tests for the RecyclingCounter class
@@ -14,7 +14,7 @@ from pathlib import Path
 from unittest.mock import Mock, patch, MagicMock
 from collections import deque
 
-from src.core.counter import (
+from src.detection.counter import (
     RecyclingCounter,
     TrackedObject,
     CountingLine,
@@ -22,7 +22,7 @@ from src.core.counter import (
     create_counter,
     count_objects_simple,
 )
-from src.core.detector import Detection, DetectionResult
+from src.detection.detector import Detection, DetectionResult
 
 
 # Test Fixtures
@@ -398,7 +398,7 @@ class TestRecyclingCounterEnhanced:
         # Should not count due to low confidence
         assert counter.total_count == 0
 
-    @patch("src.core.counter.time.time")
+    @patch("src.detection.counter.time.time")
     def test_statistics_tracking_accuracy(self, mock_time):
         """Test accuracy of statistics tracking."""
         # Mock time progression - provide enough values for all time.time() calls

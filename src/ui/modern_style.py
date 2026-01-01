@@ -83,7 +83,6 @@ class ModernFonts:
             font.setWeight(QFont.Light)
         else:
             font.setWeight(QFont.Normal)
-
         return font
 
     @staticmethod
@@ -148,21 +147,17 @@ class ModernStyleSheet:
         return f"""
         QPushButton {{
             background-color: {ModernColors.PRIMARY};
-            color: {ModernColors.TEXT_ON_PRIMARY};
+            color: #FFFFFF;
             border: none;
-            padding: 10px 20px;
+            padding: 8px 16px;
             border-radius: 6px;
-            font-weight: 500;
-            min-height: 16px;
+            font-weight: bold;
+            font-size: 13px;
+            min-height: 40px;
         }}
         
         QPushButton:hover {{
             background-color: {ModernColors.PRIMARY_DARK};
-        }}
-        
-        QPushButton:pressed {{
-            background-color: {ModernColors.PRIMARY_DARK};
-            padding: 11px 19px 9px 21px;
         }}
         
         QPushButton:disabled {{
@@ -170,38 +165,39 @@ class ModernStyleSheet:
             color: {ModernColors.TEXT_SECONDARY};
         }}
         
-        QPushButton.success {{
+        QPushButton#startButton {{
             background-color: {ModernColors.SUCCESS};
+            color: #FFFFFF;
+            font-weight: bold;
         }}
         
-        QPushButton.success:hover {{
-            background-color: {ModernColors.SECONDARY_DARK};
+        QPushButton#stopButton {{
+            background-color: {ModernColors.ERROR};
+            color: #FFFFFF;
+            font-weight: bold;
+        }}
+        
+        QPushButton#pauseButton {{
+            background-color: {ModernColors.INFO};
+            color: #FFFFFF;
+            font-weight: bold;
+        }}
+        
+        QPushButton#resetButton {{
+            background-color: {ModernColors.WARNING};
+            color: #FFFFFF;
+            font-weight: bold;
+        }}
+
+        /* Browse buttons */
+        QPushButton.success {{
+            background-color: {ModernColors.SUCCESS};
+            color: #FFFFFF;
         }}
         
         QPushButton.warning {{
             background-color: {ModernColors.WARNING};
-        }}
-        
-        QPushButton.warning:hover {{
-            background-color: {ModernColors.ACCENT_DARK};
-        }}
-        
-        QPushButton.error {{
-            background-color: {ModernColors.ERROR};
-            color: {ModernColors.TEXT_PRIMARY};
-        }}
-
-        QPushButton.error:hover {{
-            background-color: #D32F2F;
-        }}
-
-        QPushButton.info {{
-            background-color: {ModernColors.INFO};
-            color: {ModernColors.TEXT_PRIMARY};
-        }}
-
-        QPushButton.info:hover {{
-            background-color: {ModernColors.PRIMARY_DARK};
+            color: #FFFFFF;
         }}
         """
 

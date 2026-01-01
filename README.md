@@ -9,9 +9,11 @@
 
 An intelligent real-time recycling detection system powered by YOLOv8, designed to identify and count recyclable items with high accuracy and smart tracking capabilities.
 
-**Academic Project**: Developed as part of a Deep Learning course to demonstrate practical applications of computer vision and object detection in environmental sustainability.
+**Academic Project**: Developed as a final project for the **Deep Learning** course, **School of Electronic Engineering**, **Suranaree University of Technology (SUT)**. This project demonstrates the practical application of state-of-the-art computer vision and object detection in environmental sustainability and smart waste management.
 
 ## Table of Contents
+- [Architecture](#architecture)
+- [Hardware Integration](#hardware-integration)
 - [Features](#features)
 - [Quick Start](#quick-start)
 - [Usage](#usage)
@@ -23,6 +25,40 @@ An intelligent real-time recycling detection system powered by YOLOv8, designed 
 - [Troubleshooting](#troubleshooting)
 - [Roadmap](#roadmap)
 - [Contact](#contact)
+
+## 🏗️ Architecture
+
+The system follows a modular architecture separating detection logic, hardware control, and user interface.
+
+```mermaid
+graph TD
+    A[Video Source / Webcam] --> B[VideoProcessor]
+    B --> C[RecyclingDetector - YOLOv8]
+    B --> D[RecyclingCounter - Tracking]
+    C --> E[MainWindow UI]
+    D --> E
+    D --> F[HardwareInterface]
+    F --> G{Hardware Mode}
+    G -->|Simulator| H[MockHardware - GUI Feedback]
+    G -->|Real| I[RealHardware - Serial/ESP32]
+```
+
+## 🔌 Hardware Integration
+
+The system supports real-time sorting using an **ESP32** and **3 Servo Motors**.
+
+### Components
+- **MCU**: ESP32 (Recommended)
+- **Actuators**: 3x SG90 or MG90S Servos
+- **Communication**: USB Serial (115200 baud)
+
+### Setup
+1. **Flash MCU**: Upload [esp32_servo.ino](docs/mcu/esp32_servo.ino) to your ESP32.
+2. **Wiring**:
+   - **Servo 1 (Glass)**: GPIO 18
+   - **Servo 2 (Plastic)**: GPIO 19
+   - **Servo 3 (Can)**: GPIO 21
+3. **Enable**: Set `has_hardware=True` in `.env` or `config/settings.py`.
 
 ## Features
 
@@ -62,8 +98,8 @@ An intelligent real-time recycling detection system powered by YOLOv8, designed 
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/anothers17/smart-recycling-detection.git
-   cd smart-recycling-detection
+   git clone https://github.com/anothers17/Smart-Recycling-Detection-System.git
+   cd Smart-Recycling-Detection-System
    ```
 
 2. **Create virtual environment**
@@ -138,13 +174,11 @@ python src/main.py --model path/to/model.pt --video path/to/video.mp4
 Process videos programmatically:
 
 ```python
-from src.core.video_processor import process_video_file
+from src.detection.processor import VideoProcessor
 
-results = process_video_file(
-    video_path="input_video.mp4",
-    model_path="models/best.pt", 
-    output_path="output_video.mp4"
-)
+# In actual usage, it's recommended to use the factory:
+# from src.detection.processor import create_processor
+
 ```
 
 ## Configuration
@@ -242,8 +276,8 @@ docker run -it --gpus all \
 
 1. **Clone and setup**
    ```bash
-   git clone https://github.com/anothers17/smart-recycling-detection.git
-   cd smart-recycling-detection
+   git clone https://github.com/anothers17/Smart-Recycling-Detection-System.git
+   cd Smart-Recycling-Detection-System
    pip install -e ".[dev]"
    ```
 
@@ -331,7 +365,7 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 - **Facebook**: Sulhee Sama-alee
 - **GitHub**: [@anothers17](https://github.com/anothers17)
 - **Email**: sulhee8@gmail.com
-- **LinkedIn**: [Connect with me](https://www.linkedin.com/in/sulhee/)
+- **LinkedIn**: [Sulhee Sama-alee](https://www.linkedin.com/in/sulhee-sama-alee-5a5054a9/)
 
 ---
 

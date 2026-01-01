@@ -1,4 +1,4 @@
-"""
+﻿"""
 Enhanced unit tests for the detection engine.
 
 This module provides comprehensive tests for the RecyclingDetector class
@@ -17,11 +17,13 @@ from unittest.mock import Mock, patch, MagicMock, call
 from concurrent.futures import ThreadPoolExecutor
 
 # Import modules to test
-from src.core.detector import (
+from src.detection.detector import (
     RecyclingDetector,
     Detection,
     DetectionResult,
     ModelPerformanceMonitor,
+)
+from src.detection.model import (
     DetectorFactory,
     load_detector,
     detect_image,
@@ -301,7 +303,7 @@ class TestRecyclingDetectorEnhanced:
         # Configuration should be loaded
         assert detector.config is not None
 
-    @patch("src.core.detector.YOLO")
+    @patch("src.detection.detector.YOLO")
     def test_model_loading_validation_comprehensive(
         self, mock_yolo, mock_model_path, mock_yolo_model
     ):
@@ -337,7 +339,7 @@ class TestRecyclingDetectorEnhanced:
         finally:
             Path(wrong_ext_path).unlink(missing_ok=True)
 
-    @patch("src.core.detector.YOLO")
+    @patch("src.detection.detector.YOLO")
     def test_detection_with_various_parameters(
         self, mock_yolo, mock_model_path, mock_yolo_model, sample_image
     ):
@@ -359,7 +361,7 @@ class TestRecyclingDetectorEnhanced:
         # Should filter to only bottle-glass detections
         assert all(det.class_name == "bottle-glass" for det in result.detections)
 
-    @patch("src.core.detector.YOLO")
+    @patch("src.detection.detector.YOLO")
     def test_batch_detection_processing(
         self, mock_yolo, mock_model_path, mock_yolo_model, batch_images
     ):
@@ -376,7 +378,7 @@ class TestRecyclingDetectorEnhanced:
         # Processing time might be 0 for mocked operations
         assert all(result.processing_time >= 0 for result in results)
 
-    @patch("src.core.detector.YOLO")
+    @patch("src.detection.detector.YOLO")
     def test_device_switching(self, mock_yolo, mock_model_path, mock_yolo_model):
         """Test device switching functionality."""
         mock_yolo.return_value = mock_yolo_model
@@ -393,7 +395,7 @@ class TestRecyclingDetectorEnhanced:
             if detector.model:
                 mock_yolo_model.to.assert_called_with(device)
 
-    @patch("src.core.detector.YOLO")
+    @patch("src.detection.detector.YOLO")
     def test_model_warm_up(self, mock_yolo, mock_model_path, mock_yolo_model):
         """Test model warm-up functionality."""
         mock_yolo.return_value = mock_yolo_model
@@ -410,7 +412,7 @@ class TestRecyclingDetectorEnhanced:
         # Should have made 3 prediction calls during warm-up
         assert mock_yolo_model.predict.call_count >= 3
 
-    @patch("src.core.detector.YOLO")
+    @patch("src.detection.detector.YOLO")
     def test_model_export_functionality(
         self, mock_yolo, mock_model_path, mock_yolo_model
     ):
@@ -433,7 +435,7 @@ class TestRecyclingDetectorEnhanced:
         success = detector.export_model("onnx")
         assert not success
 
-    @patch("src.core.detector.YOLO")
+    @patch("src.detection.detector.YOLO")
     def test_performance_monitoring_integration(
         self, mock_yolo, mock_model_path, mock_yolo_model, sample_image
     ):
@@ -456,7 +458,7 @@ class TestRecyclingDetectorEnhanced:
         assert stats["average_processing_time"] > 0
         assert stats["average_detections_per_frame"] >= 0
 
-    @patch("src.core.detector.YOLO")
+    @patch("src.detection.detector.YOLO")
     def test_cleanup_functionality(self, mock_yolo, mock_model_path, mock_yolo_model):
         """Test cleanup functionality."""
         mock_yolo.return_value = mock_yolo_model
@@ -485,7 +487,7 @@ class TestRecyclingDetectorEnhanced:
 class TestDetectorFactoryEnhanced:
     """Enhanced tests for the DetectorFactory class."""
 
-    @patch("src.core.detector.YOLO")
+    @patch("src.detection.detector.YOLO")
     def test_factory_create_detector_success(
         self, mock_yolo, mock_model_path, mock_yolo_model
     ):
@@ -504,8 +506,8 @@ class TestDetectorFactoryEnhanced:
         with pytest.raises(RuntimeError):
             DetectorFactory.create_detector("nonexistent.pt", "cpu")
 
-    @patch("src.core.detector.get_config")
-    @patch("src.core.detector.YOLO")
+    @patch("src.detection.detector.get_config")
+    @patch("src.detection.detector.YOLO")
     def test_factory_create_from_config(
         self, mock_yolo, mock_get_config, mock_yolo_model
     ):
@@ -545,7 +547,7 @@ class TestDetectorFactoryEnhanced:
 class TestUtilityFunctionsEnhanced:
     """Enhanced tests for utility functions."""
 
-    @patch("src.core.detector.DetectorFactory.create_detector")
+    @patch("src.detection.model.DetectorFactory.create_detector")
     def test_load_detector_convenience(self, mock_create_detector, mock_model_path):
         """Test load_detector convenience function."""
         mock_detector = Mock()
@@ -556,7 +558,7 @@ class TestUtilityFunctionsEnhanced:
         assert detector == mock_detector
         mock_create_detector.assert_called_once_with(mock_model_path, "cpu")
 
-    @patch("src.core.detector.RecyclingDetector")
+    @patch("src.detection.model.RecyclingDetector")
     def test_detect_image_convenience(
         self, mock_detector_class, sample_image, mock_model_path
     ):
@@ -572,7 +574,7 @@ class TestUtilityFunctionsEnhanced:
         mock_detector.load_model.assert_called_once_with(mock_model_path)
         mock_detector.detect.assert_called_once_with(sample_image, 0.8)
 
-    @patch("src.core.detector.YOLO")
+    @patch("src.detection.detector.YOLO")
     def test_benchmark_detector_comprehensive(
         self, mock_yolo, mock_model_path, mock_yolo_model
     ):
@@ -605,7 +607,7 @@ class TestUtilityFunctionsEnhanced:
 class TestErrorHandlingEnhanced:
     """Enhanced error handling tests."""
 
-    @patch("src.core.detector.YOLO")
+    @patch("src.detection.detector.YOLO")
     def test_model_prediction_various_failures(
         self, mock_yolo, mock_model_path, sample_image
     ):
@@ -656,7 +658,7 @@ class TestErrorHandlingEnhanced:
                 # Some exceptions are expected for severely malformed inputs
                 assert isinstance(e, (ValueError, AttributeError, TypeError))
 
-    @patch("src.core.detector.YOLO")
+    @patch("src.detection.detector.YOLO")
     def test_model_loading_corruption_simulation(self, mock_yolo, mock_model_path):
         """Test handling of corrupted model files."""
         # Simulate various model loading failures
@@ -698,7 +700,7 @@ class TestErrorHandlingEnhanced:
 class TestConcurrencyAndThreadSafety:
     """Test concurrency and thread safety."""
 
-    @patch("src.core.detector.YOLO")
+    @patch("src.detection.detector.YOLO")
     def test_concurrent_detection_calls(
         self, mock_yolo, mock_model_path, mock_yolo_model
     ):
@@ -723,7 +725,7 @@ class TestConcurrencyAndThreadSafety:
         assert len(results) == 10
         assert all(isinstance(r, int) for r in results)
 
-    @patch("src.core.detector.YOLO")
+    @patch("src.detection.detector.YOLO")
     def test_thread_safety_performance_monitor(
         self, mock_yolo, mock_model_path, mock_yolo_model
     ):
@@ -760,7 +762,7 @@ class TestConcurrencyAndThreadSafety:
 class TestPerformanceAndScalability:
     """Test performance and scalability."""
 
-    @patch("src.core.detector.YOLO")
+    @patch("src.detection.detector.YOLO")
     def test_detection_performance_large_images(
         self, mock_yolo, mock_model_path, mock_yolo_model, large_image
     ):
@@ -780,7 +782,7 @@ class TestPerformanceAndScalability:
         assert isinstance(result, DetectionResult)
         assert result.image_shape == large_image.shape
 
-    @patch("src.core.detector.YOLO")
+    @patch("src.detection.detector.YOLO")
     def test_memory_usage_batch_processing(
         self, mock_yolo, mock_model_path, mock_yolo_model
     ):
@@ -802,7 +804,7 @@ class TestPerformanceAndScalability:
         assert all(isinstance(result, DetectionResult) for result in results)
 
     @pytest.mark.slow
-    @patch("src.core.detector.YOLO")
+    @patch("src.detection.detector.YOLO")
     def test_long_term_stability(self, mock_yolo, mock_model_path, mock_yolo_model):
         """Test long-term stability and memory leaks."""
         mock_yolo.return_value = mock_yolo_model
@@ -843,7 +845,7 @@ class TestConfigurationAndSettings:
         if detector.is_loaded:
             assert info["confidence_threshold"] == new_threshold
 
-    @patch("src.core.detector.YOLO")
+    @patch("src.detection.detector.YOLO")
     def test_device_configuration_persistence(
         self, mock_yolo, mock_model_path, mock_yolo_model
     ):
@@ -868,7 +870,7 @@ class TestConfigurationAndSettings:
 class TestIntegrationAdvanced:
     """Advanced integration tests."""
 
-    @patch("src.core.detector.YOLO")
+    @patch("src.detection.detector.YOLO")
     def test_detection_pipeline_integration(
         self, mock_yolo, mock_model_path, mock_yolo_model, sample_image
     ):
@@ -909,7 +911,7 @@ class TestIntegrationAdvanced:
         # Cleanup
         detector.cleanup()
 
-    @patch("src.core.detector.YOLO")
+    @patch("src.detection.detector.YOLO")
     def test_export_and_benchmark_integration(
         self, mock_yolo, mock_model_path, mock_yolo_model
     ):
@@ -943,7 +945,7 @@ def test_various_confidence_thresholds(
     confidence_threshold, mock_model_path, sample_image
 ):
     """Test detection with various confidence thresholds."""
-    with patch("src.core.detector.YOLO") as mock_yolo:
+    with patch("src.detection.detector.YOLO") as mock_yolo:
         mock_model = Mock()
         mock_model.names = {0: "bottle-glass"}
         mock_model.predict.return_value = [Mock()]
@@ -965,7 +967,7 @@ def test_various_image_sizes(image_size, mock_model_path):
     """Test detection with various image sizes."""
     test_image = np.random.randint(0, 255, (*image_size, 3), dtype=np.uint8)
 
-    with patch("src.core.detector.YOLO") as mock_yolo:
+    with patch("src.detection.detector.YOLO") as mock_yolo:
         mock_model = Mock()
         mock_model.names = {0: "bottle-glass"}
         mock_model.predict.return_value = [Mock()]
@@ -982,7 +984,7 @@ def test_various_image_sizes(image_size, mock_model_path):
 @pytest.mark.parametrize("device", ["cpu", "cuda", "auto"])
 def test_various_devices(device, mock_model_path):
     """Test detector with various devices."""
-    with patch("src.core.detector.YOLO") as mock_yolo:
+    with patch("src.detection.detector.YOLO") as mock_yolo:
         mock_model = Mock()
         mock_model.names = {0: "bottle-glass"}
         mock_yolo.return_value = mock_model
@@ -1004,7 +1006,7 @@ if __name__ == "__main__":
             "-m",
             "not slow",  # Skip slow tests by default
             "--durations=10",  # Show 10 slowest tests
-            "--cov=src.core.detector",  # Coverage for detector module
+            "--cov=src.detection.detector",  # Coverage for detector module
             "--cov-report=html",  # HTML coverage report
             "--cov-report=term-missing",  # Terminal coverage with missing lines
         ]
