@@ -15,8 +15,6 @@ from src.detection.counter import create_counter
 from src.detection.processor import create_processor
 from src.ui.main_window import MainWindow
 
-from src.ui.main_window import MainWindow
-
 logger = get_logger("main")
 
 def main() -> None:
@@ -25,6 +23,9 @@ def main() -> None:
     
     Initializes configuration, logging, hardware, and the GUI application.
     Supports both headless execution (headless mode) and GUI mode.
+
+    Returns:
+        None
     """
     # Parse command line arguments
     parser = argparse.ArgumentParser(description="Smart Recycling Detection System")
