@@ -90,13 +90,15 @@ class CountingDisplayWidget(QFrame):
         # Class label
         display_name = class_name.replace("-", " ").title()
         label = QLabel(display_name)
-        label.setFont(QFont("Segoe UI", 12, QFont.Bold))
-        label.setMinimumWidth(120)
+        label.setFont(QFont("Segoe UI", 11, QFont.Bold))
+        label.setFixedWidth(200)
+        label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
 
         # LCD display
-        lcd = QLCDNumber(4)
+        lcd = QLCDNumber(5)
         lcd.setSegmentStyle(QLCDNumber.Flat)
-        lcd.setMinimumHeight(50)
+        lcd.setFixedHeight(60)
+        lcd.setMinimumWidth(80)
 
         # Style LCD based on class
         if "glass" in class_name.lower():
@@ -123,13 +125,15 @@ class CountingDisplayWidget(QFrame):
 
         # Total label
         label = QLabel("Total Count")
-        label.setFont(QFont("Segoe UI", 14, QFont.Bold))
-        label.setMinimumWidth(120)
+        label.setFont(QFont("Segoe UI", 11, QFont.Bold))
+        label.setFixedWidth(200)
+        label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
 
         # Total LCD
         self.total_lcd = QLCDNumber(5)
         self.total_lcd.setSegmentStyle(QLCDNumber.Flat)
-        self.total_lcd.setMinimumHeight(60)
+        self.total_lcd.setFixedHeight(60)
+        self.total_lcd.setMinimumWidth(80)
         self.total_lcd.setStyleSheet(
             "QLCDNumber { color: #4CAF50; background-color: #E8F5E8; }"
         )
@@ -193,7 +197,87 @@ class CountingDisplayWidget(QFrame):
         return counts
 
 
-class ControlButtonsWidget(QFrame):
+class MotorStatusItem(QWidget):
+    """Small widget representing a single motor's status."""
+
+    def __init__(self, name: str, parent=None):
+        super().__init__(parent)
+        self.name = name
+        self.setup_ui()
+
+    def setup_ui(self):
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(0, 4, 0, 4)
+
+        # Motor name
+        self.label = QLabel(self.name)
+        self.label.setFont(QFont("Segoe UI", 10, QFont.Bold))
+        self.label.setFixedWidth(120)
+
+        # Status indicator
+        self.status_label = QLabel("CLOSE")
+        self.status_label.setAlignment(Qt.AlignCenter)
+        self.status_label.setFixedWidth(80)
+        self.status_label.setFixedHeight(24)
+        self.status_label.setStyleSheet(
+            "background-color: #E0E0E0; color: #424242; border-radius: 4px; font-weight: bold; font-size: 11px;"
+        )
+
+        layout.addWidget(self.label)
+        layout.addWidget(self.status_label)
+        layout.addStretch()
+
+    def set_status(self, is_open: bool):
+        """Set motor status and update styling."""
+        if is_open:
+            self.status_label.setText("OPEN")
+            self.status_label.setStyleSheet(
+                "background-color: #4CAF50; color: white; border-radius: 4px; font-weight: bold; font-size: 11px;"
+            )
+        else:
+            self.status_label.setText("CLOSE")
+            self.status_label.setStyleSheet(
+                "background-color: #E0E0E0; color: #424242; border-radius: 4px; font-weight: bold; font-size: 11px;"
+            )
+
+
+class HardwareStatusWidget(QGroupBox):
+    """Widget displaying the status of all hardware motors."""
+
+    def __init__(self, parent=None):
+        super().__init__("Hardware Status", parent)
+        self.motors = {}
+        self.setup_ui()
+
+    def setup_ui(self):
+        layout = QVBoxLayout(self)
+        layout.setSpacing(2)
+        layout.setContentsMargins(12, 16, 12, 12)
+
+        # Define motors based on classes
+        motor_names = ["Bottle Glass", "Bottle Plastic", "Tin Can"]
+        for name in motor_names:
+            motor_item = MotorStatusItem(name)
+            # Normalize key to lowercase with hyphens
+            key = name.lower().replace(" ", "-").replace("_", "-")
+            self.motors[key] = motor_item
+            layout.addWidget(motor_item)
+
+    def update_status(self, class_name: str, status: str):
+        """Update a specific motor's status."""
+        # Normalize: lowercase, replace spaces/underscores with hyphens
+        key = class_name.lower().replace(" ", "-").replace("_", "-")
+        if key in self.motors:
+            is_open = status.upper() == "OPEN"
+            self.motors[key].set_status(is_open)
+            
+            # If opening, set a timer to close it after a short delay (simulation)
+            if is_open:
+                from PyQt5.QtCore import QTimer
+                QTimer.singleShot(1500, lambda: self.motors[key].set_status(False))
+
+
+class ControlButtonsWidget(QWidget):
     """Widget containing main control buttons."""
 
     # Signals
@@ -224,13 +308,11 @@ class ControlButtonsWidget(QFrame):
 
         self.start_button = QPushButton("Start")
         self.start_button.setMinimumHeight(50)
-        self.start_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        self.start_button.setProperty("class", "success")
-
+        self.start_button.setStyleSheet("background-color: #4CAF50; color: white; font-weight: bold; border-radius: 6px;")
+        
         self.stop_button = QPushButton("Stop")
         self.stop_button.setMinimumHeight(50)
-        self.stop_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        self.stop_button.setProperty("class", "error")
+        self.stop_button.setStyleSheet("background-color: #F44336; color: white; font-weight: bold; border-radius: 6px;")
         self.stop_button.setEnabled(False)
 
         row1_layout.addWidget(self.start_button)
@@ -242,14 +324,12 @@ class ControlButtonsWidget(QFrame):
 
         self.pause_button = QPushButton("Pause")
         self.pause_button.setMinimumHeight(50)
-        self.pause_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        self.pause_button.setProperty("class", "info")
+        self.pause_button.setStyleSheet("background-color: #2196F3; color: white; font-weight: bold; border-radius: 6px;")
         self.pause_button.setEnabled(False)
 
         self.reset_button = QPushButton("Reset")
         self.reset_button.setMinimumHeight(50)
-        self.reset_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        self.reset_button.setProperty("class", "warning")
+        self.reset_button.setStyleSheet("background-color: #FF9800; color: white; font-weight: bold; border-radius: 6px;")
 
         row2_layout.addWidget(self.pause_button)
         row2_layout.addWidget(self.reset_button)
@@ -646,16 +726,33 @@ class ControlPanelWidget(QWidget):
 
     def setup_ui(self):
         """Set up the user interface."""
-        layout = QVBoxLayout(self)
-        layout.setSpacing(16)
+        # Main layout for the widget
+        main_layout = QVBoxLayout(self)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+
+        # Create scroll area
+        self.scroll_area = QScrollArea()
+        self.scroll_area.setWidgetResizable(True)
+        self.scroll_area.setFrameShape(QFrame.NoFrame)
+        self.scroll_area.setStyleSheet("background-color: transparent;")
+
+        # Container widget for scroll area
+        self.container = QWidget()
+        container_layout = QVBoxLayout(self.container)
+        container_layout.setSpacing(16)
+        container_layout.setContentsMargins(12, 12, 12, 12)
 
         # Control buttons
         self.control_buttons = ControlButtonsWidget()
-        layout.addWidget(self.control_buttons)
+        container_layout.addWidget(self.control_buttons)
 
         # Counting display
         self.counting_display = CountingDisplayWidget()
-        layout.addWidget(self.counting_display)
+        container_layout.addWidget(self.counting_display)
+
+        # Hardware status
+        self.hardware_status = HardwareStatusWidget()
+        container_layout.addWidget(self.hardware_status)
 
         # Create tabbed interface for settings and log
         self.tab_widget = QTabWidget()
@@ -668,12 +765,19 @@ class ControlPanelWidget(QWidget):
         self.activity_log = ActivityLogWidget()
         self.tab_widget.addTab(self.activity_log, "Activity Log")
 
-        layout.addWidget(self.tab_widget)
+        container_layout.addWidget(self.tab_widget)
 
-        # Set stretch factors
-        layout.setStretchFactor(self.control_buttons, 0)
-        layout.setStretchFactor(self.counting_display, 0)
-        layout.setStretchFactor(self.tab_widget, 1)
+        # Set stretch factors for container
+        container_layout.setStretchFactor(self.control_buttons, 0)
+        container_layout.setStretchFactor(self.counting_display, 0)
+        container_layout.setStretchFactor(self.hardware_status, 0)
+        container_layout.setStretchFactor(self.tab_widget, 1)
+
+        # Add container to scroll area
+        self.scroll_area.setWidget(self.container)
+
+        # Add scroll area to main layout
+        main_layout.addWidget(self.scroll_area)
 
     def setup_connections(self):
         """Set up signal connections."""
@@ -690,6 +794,16 @@ class ControlPanelWidget(QWidget):
     def update_counters(self, class_counts: Dict[str, int]):
         """Update counting displays."""
         self.counting_display.update_counts(class_counts)
+
+    def update_hardware_status(self, class_name: str, action: str, status: str):
+        """Update hardware status display and log."""
+        # Update visual indicators
+        self.hardware_status.update_status(class_name, status)
+
+        # Add to activity log with device-style formatting
+        timestamp = time.strftime("%H:%M:%S")
+        log_msg = f"[{timestamp}] [Device] Sorting {class_name.upper()}... Status: {status}"
+        self.activity_log.add_log_entry(log_msg, "INFO")
 
     def reset_counters(self):
         """Reset all counters."""

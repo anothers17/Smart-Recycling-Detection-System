@@ -14,7 +14,7 @@ import numpy as np
 
 from config.settings import get_config
 from config.logging_config import get_logger
-from src.core.detector import Detection, DetectionResult
+from .detector import Detection, DetectionResult
 
 logger = get_logger("counter")
 

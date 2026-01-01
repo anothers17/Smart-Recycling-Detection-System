@@ -5,22 +5,24 @@ This module provides threaded video processing capabilities with
 real-time detection, counting, and display updates.
 """
 
-import cv2
 import time
-import numpy as np
-import psutil
 from pathlib import Path
 from typing import Optional, Union, Dict, Any, List
+
+import cv2
+import numpy as np
+import psutil
 from PyQt5.QtCore import QThread, pyqtSignal, QMutex, QWaitCondition
 
 from config.settings import get_config
 from config.logging_config import get_logger
-from src.core.detector import RecyclingDetector, DetectionResult
-from src.core.counter import RecyclingCounter
-from src.core.output_writer import VideoOutputWriter
-from src.core.camera_utils import detect_available_cameras
+from src.hardware import HardwareInterface
 from src.utils.plotting import EnhancedAnnotator
 from src.utils.image_utils import convert_color_space
+from .detector import RecyclingDetector, DetectionResult
+from .counter import RecyclingCounter
+from .output_writer import VideoOutputWriter
+from .camera_utils import detect_available_cameras
 
 logger = get_logger("main")
 
@@ -39,20 +41,28 @@ class VideoProcessor(QThread):
     performanceUpdated = pyqtSignal(dict)  # Performance metrics
     errorOccurred = pyqtSignal(str)  # Error messages
     processingFinished = pyqtSignal()  # Processing completed
+    hardwareActionTriggered = pyqtSignal(str, str, str)  # Class, Action, Status
 
-    def __init__(self, detector: RecyclingDetector, counter: RecyclingCounter):
+    def __init__(
+        self, 
+        detector: RecyclingDetector, 
+        counter: RecyclingCounter,
+        hardware: Optional[HardwareInterface] = None
+    ):
         """
         Initialize video processor.
 
         Args:
             detector: Detection engine
             counter: Counting system
+            hardware: Hardware interface for physical control
         """
         super().__init__()
 
         self.config = get_config()
         self.detector = detector
         self.counter = counter
+        self.hardware = hardware
 
         # Video source
         self.video_source: Optional[Union[str, int]] = None
@@ -80,6 +90,10 @@ class VideoProcessor(QThread):
         self.output_path = None
 
         logger.info("Video processor initialized")
+        if self.hardware:
+            logger.info(f"Hardware support enabled: {type(self.hardware).__name__}")
+        else:
+            logger.info("Hardware support disabled")
 
     def set_video_source(self, source: Union[str, int, Path]) -> bool:
         """
@@ -200,6 +214,7 @@ class VideoProcessor(QThread):
                     ".mkv",
                     ".wmv",
                     ".flv",
+                    ".webm"
                 ]:
                     logger.warning(
                         f"Unsupported video format: {video_path.suffix}. Attempting to open anyway."
@@ -283,6 +298,11 @@ class VideoProcessor(QThread):
                 logger.error(error_msg)
                 self.errorOccurred.emit(error_msg)
                 return
+            
+            # Connect hardware if available
+            if self.hardware:
+                if not self.hardware.connect():
+                    logger.warning("Failed to connect to hardware, proceeding without it.")
 
             self.should_stop = False
             self.is_paused = False
@@ -308,6 +328,10 @@ class VideoProcessor(QThread):
         self.mutex.lock()
         self.pause_condition.wakeAll()
         self.mutex.unlock()
+        
+        # Disconnect hardware
+        if self.hardware:
+            self.hardware.disconnect()
 
         logger.info("Video processing stop requested")
 
@@ -437,9 +461,27 @@ class VideoProcessor(QThread):
 
             # Perform detection
             detection_result = self.detector.detect(rgb_frame)
+            
+            # Helper to check for count increases
+            previous_counts = self.counter.class_counts.copy()
 
             # Update counter
             count_stats = self.counter.update(detection_result)
+            
+            # Check for new counts to trigger hardware
+            if self.hardware:
+                for class_name, count in count_stats.items():
+                    prev_count = previous_counts.get(class_name, 0)
+                    if count > prev_count:
+                        # New detection counted!
+                        self.hardware.trigger_action(class_name)
+                        # Emit hardware signal for UI feedback
+                        logger.info(f"Triggering hardware feedback for: {class_name}")
+                        self.hardwareActionTriggered.emit(class_name, "SORT", "OPEN")
+                        # Note: In a real system, we might wait for a completion status,
+                        # but for simulation we emit a follow-up "CLOSE" signal after a delay
+                        # or let the UI handle the "active" state duration.
+                        # For now, we'll emit OPEN and let the hardware layer handle its own logging.
 
             # Create annotated frame
             annotated_frame = self._create_annotated_frame(
@@ -600,6 +642,10 @@ class VideoProcessor(QThread):
             # Release output writer
             if output_writer:
                 output_writer.close()
+            
+            # Disconnect hardware
+            if self.hardware:
+                self.hardware.disconnect()
 
             logger.info("Video processor cleanup completed")
 
@@ -646,6 +692,7 @@ class WebcamProcessor(VideoProcessor):
         detector: RecyclingDetector,
         counter: RecyclingCounter,
         camera_index: int = 0,
+        hardware: Optional[HardwareInterface] = None
     ):
         """
         Initialize webcam processor.
@@ -654,8 +701,9 @@ class WebcamProcessor(VideoProcessor):
             detector: Detection engine
             counter: Counting system
             camera_index: Camera device index
+            hardware: Hardware interface
         """
-        super().__init__(detector, counter)
+        super().__init__(detector, counter, hardware)
         self.set_video_source(camera_index)
         logger.info(f"Webcam processor initialized for camera {camera_index}")
 
@@ -668,6 +716,7 @@ class FileProcessor(VideoProcessor):
         detector: RecyclingDetector,
         counter: RecyclingCounter,
         video_path: Union[str, Path],
+        hardware: Optional[HardwareInterface] = None
     ):
         """
         Initialize file processor.
@@ -676,8 +725,9 @@ class FileProcessor(VideoProcessor):
             detector: Detection engine
             counter: Counting system
             video_path: Path to video file
+            hardware: Hardware interface
         """
-        super().__init__(detector, counter)
+        super().__init__(detector, counter, hardware)
         self.set_video_source(video_path)
         logger.info(f"File processor initialized for: {video_path}")
 
@@ -687,6 +737,7 @@ def create_processor(
     detector: RecyclingDetector,
     counter: RecyclingCounter,
     source: Union[str, int, Path],
+    hardware: Optional[HardwareInterface] = None
 ) -> VideoProcessor:
     """
     Create appropriate video processor based on source type.
@@ -695,14 +746,15 @@ def create_processor(
         detector: Detection engine
         counter: Counting system
         source: Video source (file path or camera index)
+        hardware: Hardware interface
 
     Returns:
         VideoProcessor instance
     """
     if isinstance(source, int):
-        return WebcamProcessor(detector, counter, source)
+        return WebcamProcessor(detector, counter, source, hardware)
     else:
-        return FileProcessor(detector, counter, source)
+        return FileProcessor(detector, counter, source, hardware)
 
 
 def process_video_file(
@@ -721,16 +773,18 @@ def process_video_file(
     Returns:
         Processing statistics
     """
-    from src.core.model_factory import load_detector
-    from src.core.counter import create_counter
-
+    from .model import load_detector
+    from .counter import create_counter
+    # Note: Hardware is usually not needed for batch file processing unless simulation is desired
+    # We will pass None for current implementation
+    
     try:
         # Load detector and create counter
         detector = load_detector(model_path)
         counter = create_counter()
 
         # Create processor
-        processor = FileProcessor(detector, counter, video_path)
+        processor = FileProcessor(detector, counter, video_path, hardware=None)
 
         if output_path:
             processor.enable_output_saving(str(output_path))
@@ -800,72 +854,13 @@ def process_video_file(
                     current_fps = processor.fps_counter / time_diff
                     processor.fps_counter = 0
                     processor.fps_timer = current_time
-                    logger.info(
-                        f"Processed {processor.frame_count} frames, current FPS: {current_fps:.2f}"
-                    )
+                    logger.info(f"Processing... Frame {processor.frame_count}, {current_fps:.1f} FPS")
 
-        # Processing completed
-        logger.info(
-            f"Batch processing completed: {processor.frame_count} frames processed"
-        )
-
-        # Collect final statistics
-        final_stats = {
-            "status": "completed",
-            "video_path": str(video_path),
-            "model_path": str(model_path),
-            "output_path": str(output_path) if output_path else None,
-            "total_frames_processed": processor.frame_count,
-            "processing_time_seconds": time.time() - processor.start_time,
-        }
-
-        # Add counter statistics
-        counter_stats = processor.counter.get_statistics()
-        final_stats.update(
-            {
-                "total_objects_counted": counter_stats.get("total_count", 0),
-                "class_counts": counter_stats.get("class_counts", {}),
-                "direction_counts": counter_stats.get("direction_counts", {}),
-                "tracked_objects": counter_stats.get("tracked_objects", 0),
-                "crossed_objects": counter_stats.get("crossed_objects", 0),
-                "target_classes": counter_stats.get("target_classes", []),
-            }
-        )
-
-        # Add detector performance stats
-        detector_stats = processor.detector.get_performance_stats()
-        final_stats.update(
-            {
-                "average_detection_fps": detector_stats.get("average_fps", 0),
-                "average_processing_time": detector_stats.get(
-                    "average_processing_time", 0
-                ),
-                "average_detections_per_frame": detector_stats.get(
-                    "average_detections_per_frame", 0
-                ),
-                "average_memory_usage_mb": detector_stats.get("average_memory_usage_mb", 0),
-                "peak_memory_usage_mb": detector_stats.get("peak_memory_usage_mb", 0),
-            }
-        )
-
-        # Calculate overall FPS
-        if final_stats["processing_time_seconds"] > 0:
-            final_stats["overall_fps"] = (
-                processor.frame_count / final_stats["processing_time_seconds"]
-            )
-        else:
-            final_stats["overall_fps"] = 0
-
-        # Cleanup
-        if output_writer:
-            output_writer.close()
-        processor._cleanup()
-
-        logger.info(
-            f"Batch processing results: {final_stats['total_objects_counted']} objects counted"
-        )
-        return final_stats
+        logger.info("Batch processing completed")
+        return processor.counter.get_statistics()
 
     except Exception as e:
-        logger.error(f"Error processing video file: {e}")
+        logger.error(f"Error inside processing loop: {e}")
         return {"status": "error", "error": str(e)}
+    finally:
+        processor._cleanup(output_writer)

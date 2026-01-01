@@ -16,8 +16,8 @@ import threading
 import psutil
 import gc
 
-from src.core.detector import Detection, DetectionResult
-from src.core.counter import CountingLine, TrackedObject
+from src.detection.detector import Detection, DetectionResult
+from src.detection.counter import CountingLine, TrackedObject
 
 
 # Test Configuration

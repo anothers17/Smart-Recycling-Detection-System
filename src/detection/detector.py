@@ -16,7 +16,7 @@ from ultralytics import YOLO
 
 from config.settings import get_config
 from config.logging_config import get_logger, log_performance
-from src.core.performance_monitor import ModelPerformanceMonitor
+from .performance_monitor import ModelPerformanceMonitor
 
 logger = get_logger("detection")
 
@@ -132,8 +132,8 @@ class RecyclingDetector:
         self.model_path = None
         self.device = self.config.detection.device
         self.is_loaded = False
-
-        # Performance monitoring
+        
+        # Note: ถ้าเครื่องเพื่อนไม่มี GPU มันจะสลับไป CPU อัตโนมัติ (ขี้เกียจแก้บ่อยๆ)
         self.performance_monitor = ModelPerformanceMonitor()
 
         # Load model if path provided
@@ -156,13 +156,13 @@ class RecyclingDetector:
         # Validate file existence and format
         if not model_path.exists():
             logger.error(f"Model file not found: {model_path}")
-            raise FileNotFoundError(f"Model file does not exist: {model_path}")
+            return False
 
         if not model_path.suffix.lower() in [".pt", ".pth"]:
             logger.error(
                 f"Unsupported model format: {model_path.suffix}. Supported: .pt, .pth"
             )
-            raise ValueError(f"Unsupported model format: {model_path.suffix}")
+            return False
 
         logger.info(f"Loading model from: {model_path}")
 
@@ -224,7 +224,7 @@ class RecyclingDetector:
             f"Failed to load model after {max_retries} attempts: {last_exception}"
         )
         logger.error(error_msg)
-        raise RuntimeError(error_msg)
+        return False
 
     def _validate_model(self) -> bool:
         """

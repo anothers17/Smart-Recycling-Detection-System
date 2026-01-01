@@ -8,8 +8,7 @@ numpy>=1.21.0               # Numerical computing
 Pillow>=9.0.0               # Image processing
 
 # GUI framework
-PyQt5>=5.15.0               # GUI framework
-PyQt5-tools>=5.15.0         # Qt designer and tools
+PyQt5==5.15.9               # GUI framework (pinned for compatibility)
 
 # Machine learning and data science
 torch>=2.0.0                # PyTorch (required by ultralytics)
@@ -36,7 +35,10 @@ sphinx-rtd-theme>=1.0.0     # ReadTheDocs theme
 # Utilities
 tqdm>=4.64.0                # Progress bars
 psutil>=5.9.0               # System and process utilities
-python-dotenv>=0.19.0       # Environment variable management
+python-dotenv>=1.0.0        # Environment variable management
+pydantic>=2.0.0             # configuration management
+pydantic-settings>=2.0.0    # configuration management settings
+pyserial>=3.5               # Serial communication for ESP32/Arduino
 
 # Optional GPU acceleration (uncomment if using NVIDIA GPU)
 nvidia-ml-py>=11.4.0        # NVIDIA GPU monitoring

@@ -8,10 +8,10 @@ and batch processing video files.
 from pathlib import Path
 from typing import Union, Dict, Any
 
-from src.core.video_processor import VideoProcessor, WebcamProcessor, FileProcessor
-from src.core.detector import RecyclingDetector
-from src.core.model_factory import load_detector
-from src.core.counter import RecyclingCounter, create_counter
+from .processor import VideoProcessor, WebcamProcessor, FileProcessor
+from .detector import RecyclingDetector
+from .model import load_detector
+from .counter import RecyclingCounter, create_counter
 
 from config.logging_config import get_logger
 
