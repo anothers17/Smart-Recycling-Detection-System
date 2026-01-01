@@ -109,4 +109,7 @@ If you see **"Environment Verification Successful"**, you are ready to go!
 
 ---
 
-**Next Steps**: Head over to the [Usage Guide](usage.md) to learn how to load your first model and start detecting! ♻️🚀
+**Next Steps**: 
+- 🚀 Learn how to use the system in the [Usage Guide](usage.md).
+- 🔧 Set up your physical hardware with the [Hardware Setup Guide](hardware_setup.md).
+♻️🚀

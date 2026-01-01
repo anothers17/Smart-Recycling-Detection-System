@@ -80,7 +80,7 @@ Test the entire system right now on your computer:
 For detailed instructions on how to set up and run the project, please refer to:
 - 💻 [Simulator Setup Guide](docs/installation.md) - For Windows users.
 - 🍎 [macOS & Linux Setup Guide](docs/installation.md#linux-and-macos-installation) - For Unix-like systems.
-- 🔧 [Real Hardware Setup Guide](docs/usage.md#hardware-integration) - For assembling physical ESP32 hardware.
+- 🔧 [Real Hardware Setup Guide](docs/hardware_setup.md) - For assembling physical ESP32 hardware.
 - 📦 [Advanced Configuration](docs/usage.md#configuration-details) - For fine-tuning detection and counting.
 
 ---
